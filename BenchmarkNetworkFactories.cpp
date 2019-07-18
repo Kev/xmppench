@@ -6,12 +6,14 @@
 
 #include "BenchmarkNetworkFactories.h"
 
+#include <Swiften/Crypto/PlatformCryptoProvider.h>
+#include <Swiften/IDN/PlatformIDNConverter.h>
 #include <Swiften/Network/BoostConnectionFactory.h>
 #include <Swiften/Network/BoostConnectionServerFactory.h>
 #include <Swiften/Network/BoostTimerFactory.h>
+#include <Swiften/Network/PlatformProxyProvider.h>
 #include <Swiften/Parser/PlatformXMLParserFactory.h>
 #include <Swiften/TLS/PlatformTLSFactories.h>
-#include <Swiften/Network/PlatformProxyProvider.h>
 
 BenchmarkNetworkFactories::BenchmarkNetworkFactories(Swift::BoostASIOEventLoop* eventLoop, const std::string& ip) : eventLoop(eventLoop) {
 	proxyProvider = new Swift::PlatformProxyProvider();
@@ -74,9 +76,11 @@ Swift::NetworkEnvironment* BenchmarkNetworkFactories::getNetworkEnvironment() co
 }
 
 Swift::IDNConverter* BenchmarkNetworkFactories::getIDNConverter() const {
-	return nullptr;
+	static Swift::IDNConverter* idn = Swift::PlatformIDNConverter::create();
+	return idn;
 }
 
 Swift::CryptoProvider* BenchmarkNetworkFactories::getCryptoProvider() const {
-	return nullptr;
+	static Swift::CryptoProvider* crypto = Swift::PlatformCryptoProvider::create();
+	return crypto;
 }
