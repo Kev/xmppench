@@ -10,7 +10,7 @@
 #include <boost/smart_ptr/make_shared.hpp>
 
 BoostEventLoop::BoostEventLoop() {
-	ioService_ = boost::make_shared<boost::asio::io_service>();
+	ioService_ = std::make_shared<boost::asio::io_service>();
 }
 
 void BoostEventLoop::run() {
@@ -21,6 +21,6 @@ void BoostEventLoop::post(const Swift::Event& event) {
 	event.callback();
 }
 
-boost::shared_ptr<boost::asio::io_service> BoostEventLoop::getIOService() const {
+std::shared_ptr<boost::asio::io_service> BoostEventLoop::getIOService() const {
 	return ioService_;
 }

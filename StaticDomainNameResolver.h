@@ -15,10 +15,10 @@
 class StaticDomainNameResolver : public Swift::DomainNameResolver {
 public:
 	StaticDomainNameResolver(const std::string&);
-	virtual ~StaticDomainNameResolver();
+	~StaticDomainNameResolver() override;
 
-	virtual boost::shared_ptr<Swift::DomainNameServiceQuery> createServiceQuery(const std::string& ip);
-	virtual boost::shared_ptr<Swift::DomainNameAddressQuery> createAddressQuery(const std::string& ip);
+	std::shared_ptr<Swift::DomainNameServiceQuery> createServiceQuery(const std::string& serviceLookupPrefix, const std::string& domain) override;
+	std::shared_ptr<Swift::DomainNameAddressQuery> createAddressQuery(const std::string& ip) override;
 
 private:
 	class StaticDomainNameAddressQuery : public Swift::DomainNameAddressQuery {

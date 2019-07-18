@@ -10,17 +10,19 @@
 
 #include <boost/format.hpp>
 #include <boost/program_options.hpp>
-#include <boost/thread.hpp>
+// #include <boost/thread.hpp>
 
-#include <Swiften/Base/foreach.h>
-#include <Swiften/EventLoop/SimpleEventLoop.h>
+// #include <Swiften/EventLoop/SimpleEventLoop.h>
+#define private public // FIXME
+#include <Swiften/EventLoop/BoostASIOEventLoop.h>
+#define private private
 #include <Swiften/JID/JID.h>
 #include <Swiften/Network/BoostNetworkFactories.h>
 
 #include "AccountDataProvider.h"
 #include "LatencyWorkloadBenchmark.h"
 #include "BenchmarkNetworkFactories.h"
-#include "BoostEventLoop.h"
+// #include "BoostEventLoop.h"
 
 
 #include <ctime>
@@ -55,8 +57,8 @@ private:
 	unsigned long counter;
 };
 
-void eventLoopRunner(BoostEventLoop* eventLoop) {
-	eventLoop->run();
+void eventLoopRunner(BoostASIOEventLoop* eventLoop) {
+	eventLoop->ioService_->run();
 }
 
 int main(int argc, char *argv[]) {
@@ -65,7 +67,7 @@ int main(int argc, char *argv[]) {
 	std::string bodyfile;
 	std::string rabbitprefix;
 	bool waitAtBeginning;
-	int jobs = 1;
+	size_t jobs = 1;
 	std::string boshHost;
 	std::string boshPath;
 	int boshPort;
@@ -81,10 +83,10 @@ int main(int argc, char *argv[]) {
 			("hostname", po::value<std::string>(&hostname)->default_value("localhost"),		"hostname of benchmarked server")
 			("idles", po::value<int>(&options.noOfIdleSessions)->default_value(8000),			"number of idle connections")
 			("ip", po::value<std::string>(&ip),												"specify the IP to connect to; overrides DNS lookups; required with jobs > 1")
-			("jobs", po::value<int>(&jobs)->default_value(1),									"number of threads to run ! EXPERIMENTAL !")
+			("jobs", po::value<size_t>(&jobs)->default_value(1),									"number of threads to run ! EXPERIMENTAL !")
 			("nocomp", po::value<bool>(&options.noCompression)->default_value(false),			"prevent use of stream compression")
 			("notls", po::value<bool>(&options.noTLS)->default_value(false),					"prevent use of TLS")
-			("plogins", po::value<int>(&options.parallelLogins)->default_value(2),			"number of parallel logins")
+			("plogins", po::value<size_t>(&options.parallelLogins)->default_value(2),			"number of parallel logins")
 			("rabbitprefix", po::value<std::string>(&rabbitprefix),							"Prefix to use before number for accounts and passwords")
 			("stanzas", po::value<int>(&options.stanzasPerConnection)->default_value(1000),	"stanzas to send per connection")
 			("version",																		"print version number")
@@ -97,7 +99,7 @@ int main(int argc, char *argv[]) {
 	;
 
 	po::variables_map vm;
-	po::parsed_options parsed = po::command_line_parser(argc, argv).options(desc).allow_unregistered().run();  
+	po::parsed_options parsed = po::command_line_parser(argc, argv).options(desc).allow_unregistered().run();
 
 
 	std::vector<std::string> unrecognizedOptions = collect_unrecognized(parsed.options, boost::program_options::include_positional);
@@ -158,11 +160,11 @@ int main(int argc, char *argv[]) {
 
 	}
 
-	std::vector<BoostEventLoop*> eventLoops;
+	std::vector<BoostASIOEventLoop*> eventLoops;
 	std::vector<NetworkFactories*> networkFactories;
 
 	for (int n = 0; n < jobs; ++n) {
-		BoostEventLoop* eventLoop = new BoostEventLoop();
+		BoostASIOEventLoop* eventLoop = new BoostASIOEventLoop(std::make_shared<boost::asio::io_service>());
 		NetworkFactories* factory;
 		//if (jobs > 1) {
 			factory = new BenchmarkNetworkFactories(eventLoop, ip);
@@ -177,13 +179,16 @@ int main(int argc, char *argv[]) {
 
 	LatencyWorkloadBenchmark benchmark(networkFactories, &accountProvider, options);
 
-	boost::thread_group threadGroup;
+	std::vector<std::thread> threadGroup;
 
-	for (int n = 0; n < jobs; ++n) {
-		threadGroup.add_thread(new boost::thread(eventLoopRunner, eventLoops[n]));
+	for (size_t n = 0; n < jobs; ++n) {
+		auto service = eventLoops[n]->ioService_;
+		threadGroup.emplace_back([service](){service->run();});
 	}
-	threadGroup.join_all();
-	for (int i = 0; i < jobs; ++i) {
+	for (auto& thread : threadGroup) {
+		thread.join();
+	}
+	for (size_t i = 0; i < jobs; ++i) {
 		delete eventLoops[i];
 		delete networkFactories[i];
 	}

@@ -33,7 +33,7 @@ public:
 
 	virtual BenchmarkSession::LatencyInfo getLatencyResults();
 
-	boost::signal<void ()> onReadyToWarmUp;
+	boost::signals2::signal<void ()> onReadyToWarmUp;
 
 private:
 	void prepareMessageTemplate();
@@ -41,7 +41,7 @@ private:
 	void sendMessage(int connection);
 	void handleConnected(int connection);
 	void handleDisconnected(int connection, const boost::optional<Swift::ClientError>&);
-	void handleMessageReceived(int connection, boost::shared_ptr<Swift::Message>);
+	void handleMessageReceived(int connection, std::shared_ptr<Swift::Message>);
 	void handleMessageTimeout(int connection);
 
 	void handleDataRead(const Swift::SafeByteArray&);
@@ -95,6 +95,6 @@ private:
 	boost::posix_time::ptime begin;
 	boost::posix_time::ptime end;
 	boost::uintmax_t bytesReceived;
-	
+
 	Swift::URL boshURL;
 };

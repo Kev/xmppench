@@ -32,7 +32,7 @@ public:
 		int noOfActiveSessions;
 		int stanzasPerConnection;
 		int warmupStanzas;
-		int parallelLogins;
+		size_t parallelLogins;
 		std::string bodymessage;
 		bool noTLS;
 		bool noCompression;

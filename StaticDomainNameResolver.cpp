@@ -17,12 +17,12 @@
 StaticDomainNameResolver::StaticDomainNameResolver(const std::string& ip) : ip(ip) { }
 StaticDomainNameResolver::~StaticDomainNameResolver() { }
 
-boost::shared_ptr<Swift::DomainNameServiceQuery> StaticDomainNameResolver::createServiceQuery(const std::string&) {
-	return boost::make_shared<StaticDomainNameServiceQuery>(ip);
+std::shared_ptr<Swift::DomainNameServiceQuery> StaticDomainNameResolver::createServiceQuery(const std::string&, const std::string&) {
+	return std::make_shared<StaticDomainNameServiceQuery>(ip);
 }
 
-boost::shared_ptr<Swift::DomainNameAddressQuery> StaticDomainNameResolver::createAddressQuery(const std::string&) {
-	return boost::make_shared<StaticDomainNameAddressQuery>(ip);
+std::shared_ptr<Swift::DomainNameAddressQuery> StaticDomainNameResolver::createAddressQuery(const std::string&) {
+	return std::make_shared<StaticDomainNameAddressQuery>(ip);
 }
 
 StaticDomainNameResolver::StaticDomainNameAddressQuery::StaticDomainNameAddressQuery(const std::string& ip) : ip(ip) { }
@@ -30,7 +30,9 @@ StaticDomainNameResolver::StaticDomainNameAddressQuery::~StaticDomainNameAddress
 
 void StaticDomainNameResolver::StaticDomainNameAddressQuery::run() {
 	std::vector<Swift::HostAddress> addresses;
-	addresses.push_back(Swift::HostAddress(ip));
+	auto address = Swift::HostAddress::fromString(ip);
+	// FIXME: Check return before boom
+	addresses.push_back(address.get());
 	onResult(addresses, boost::optional<Swift::DomainNameResolveError>());
 }
 

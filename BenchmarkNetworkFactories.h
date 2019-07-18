@@ -5,17 +5,18 @@
  */
 
 #pragma once
-
-#include <Swiften/EventLoop/EventLoop.h>
+#define private public // FIXME
+#include <Swiften/EventLoop/BoostASIOEventLoop.h>
+#define private private
 #include <Swiften/Network/NetworkFactories.h>
 #include <Swiften/TLS/PlatformTLSFactories.h>
 
-#include "BoostEventLoop.h"
+// #include "BoostEventLoop.h"
 #include "StaticDomainNameResolver.h"
 
 class BenchmarkNetworkFactories : public Swift::NetworkFactories {
 public:
-	BenchmarkNetworkFactories(BoostEventLoop*, const std::string&);
+	BenchmarkNetworkFactories(Swift::BoostASIOEventLoop*, const std::string&);
 	virtual ~BenchmarkNetworkFactories();
 
 	virtual Swift::TimerFactory* getTimerFactory() const;
@@ -43,5 +44,5 @@ private:
 	Swift::IDNConverter* idnConverter;
 	Swift::CryptoProvider* cryptoProvider;
 
-	BoostEventLoop *eventLoop;
+	Swift::BoostASIOEventLoop *eventLoop;
 };

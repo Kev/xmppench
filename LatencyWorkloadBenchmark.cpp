@@ -8,7 +8,6 @@
 
 #include <boost/format.hpp>
 #include <boost/date_time/posix_time/time_formatters.hpp>
-#include <Swiften/base/foreach.h>
 
 #include "ActiveSessionPair.h"
 #include "BenchmarkSession.h"
@@ -42,7 +41,7 @@ LatencyWorkloadBenchmark::LatencyWorkloadBenchmark(std::vector<Swift::NetworkFac
 	std::cout.flush();
 
 	nextActivateSession = sessionsToActivate.begin();
-	for (size_t n = 0; n < static_cast<size_t>(opt.parallelLogins) && n < sessionsToActivate.size(); ++n) {
+	for (size_t n = 0; n < opt.parallelLogins && n < sessionsToActivate.size(); ++n) {
 		(*nextActivateSession)->start();
 		++nextActivateSession;
 	}
@@ -200,13 +199,13 @@ void LatencyWorkloadBenchmark::finishSessions() {
 	std::cout << "Finishing sessions...";
 	std::cout.flush();
 	std::list<BenchmarkSession*> readySessions;
-	foreach (ActiveSessionPair* session, activeSessionPairs) {
+	for (auto* session : activeSessionPairs) {
 		readySessions.push_back(session);
 	}
-	foreach (IdleSession* session, idleSessions) {
+	for (auto* session : idleSessions) {
 		readySessions.push_back(session);
 	}
-	foreach(BenchmarkSession* session, readySessions) {
+	for(auto* session : readySessions) {
 		session->onStopped.connect(boost::bind(&LatencyWorkloadBenchmark::handleBenchmarkSessionStopped, this, session));
 		yetToBeStoppedSessions.insert(session);
 		session->stop();

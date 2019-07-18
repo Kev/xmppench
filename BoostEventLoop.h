@@ -17,8 +17,8 @@ public:
 	void run();
 	virtual void post(const Swift::Event& event);
 
-	boost::shared_ptr<boost::asio::io_service> getIOService() const;
+	std::shared_ptr<boost::asio::io_service> getIOService() const;
 
 private:
-	boost::shared_ptr<boost::asio::io_service> ioService_;
+	std::shared_ptr<boost::asio::io_service> ioService_;
 };

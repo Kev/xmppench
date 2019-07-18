@@ -13,14 +13,14 @@
 #include <Swiften/TLS/PlatformTLSFactories.h>
 #include <Swiften/Network/PlatformProxyProvider.h>
 
-BenchmarkNetworkFactories::BenchmarkNetworkFactories(BoostEventLoop* eventLoop, const std::string& ip) : eventLoop(eventLoop) {
+BenchmarkNetworkFactories::BenchmarkNetworkFactories(Swift::BoostASIOEventLoop* eventLoop, const std::string& ip) : eventLoop(eventLoop) {
 	proxyProvider = new Swift::PlatformProxyProvider();
 	platformTlsFactories= new Swift::PlatformTLSFactories();
 	xmlParserFactory = new Swift::PlatformXMLParserFactory();
-	connectionServerFactory = new Swift::BoostConnectionServerFactory(eventLoop->getIOService(), eventLoop);
+	connectionServerFactory = new Swift::BoostConnectionServerFactory(eventLoop->ioService_, eventLoop);
 	domainNameResolver = new StaticDomainNameResolver(ip);
-	connectionFactory = new Swift::BoostConnectionFactory(eventLoop->getIOService(), eventLoop);
-	timerFactory = new Swift::BoostTimerFactory(eventLoop->getIOService(), eventLoop);
+	connectionFactory = new Swift::BoostConnectionFactory(eventLoop->ioService_, eventLoop);
+	timerFactory = new Swift::BoostTimerFactory(eventLoop->ioService_, eventLoop);
 }
 
 BenchmarkNetworkFactories::~BenchmarkNetworkFactories() {
@@ -50,7 +50,7 @@ Swift::ConnectionServerFactory* BenchmarkNetworkFactories::getConnectionServerFa
 }
 
 Swift::NATTraverser* BenchmarkNetworkFactories::getNATTraverser() const {
-	return NULL;
+	return nullptr;
 }
 
 Swift::XMLParserFactory* BenchmarkNetworkFactories::getXMLParserFactory() const {
@@ -70,13 +70,13 @@ Swift::EventLoop* BenchmarkNetworkFactories::getEventLoop() const {
 }
 
 Swift::NetworkEnvironment* BenchmarkNetworkFactories::getNetworkEnvironment() const {
-	return NULL;
+	return nullptr;
 }
 
 Swift::IDNConverter* BenchmarkNetworkFactories::getIDNConverter() const {
-	
+	return nullptr;
 }
 
 Swift::CryptoProvider* BenchmarkNetworkFactories::getCryptoProvider() const {
-	
+	return nullptr;
 }

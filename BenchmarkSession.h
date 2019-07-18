@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <boost/date_time/posix_time/ptime.hpp>
 
 class BenchmarkSession {
@@ -42,8 +42,8 @@ public:
 
 	virtual LatencyInfo getLatencyResults() { return LatencyInfo(); }
 
-	boost::signal<void ()> onReadyToBenchmark;
-	boost::signal<void ()> onDoneBenchmarking;
-	boost::signal<void ()> onBenchmarkEnd;
-	boost::signal<void ()> onStopped;
+	boost::signals2::signal<void ()> onReadyToBenchmark;
+	boost::signals2::signal<void ()> onDoneBenchmarking;
+	boost::signals2::signal<void ()> onBenchmarkEnd;
+	boost::signals2::signal<void ()> onStopped;
 };

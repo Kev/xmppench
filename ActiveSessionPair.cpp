@@ -18,7 +18,7 @@
 using namespace Swift;
 
 ActiveSessionPair::ActiveSessionPair(AccountDataProvider* accountDataProvider, Swift::NetworkFactories* networkFactories, Swift::CertificateTrustChecker* trustChecker, int warmUpMessages, int messages, std::string body, bool noCompression, bool noTLS, const Swift::URL& boshURL) :
-	accountDataProvider(accountDataProvider), networkFactories(networkFactories), trustChecker(trustChecker), warmUpMessages(warmUpMessages), messages(messages), body(body), noCompression(noCompression), noTLS(noTLS), connectedClients(0), bytesReceived(0), benchmarking(false), boshURL(boshURL) {
+	accountDataProvider(accountDataProvider), networkFactories(networkFactories), trustChecker(trustChecker), warmUpMessages(warmUpMessages), messages(messages), body(body), noCompression(noCompression), noTLS(noTLS), benchmarking(false), connectedClients(0), bytesReceived(0), boshURL(boshURL) {
 	noOfSentMessages[0] = 0;
 	noOfSentMessages[1] = 0;
 	noOfReceivedMessages[0] = 0;
@@ -111,7 +111,7 @@ void ActiveSessionPair::sendMessage(int connection) {
 	client[connection]->sendData(messageHeader[connection] + id + messageFooter[connection]);
 }
 
-void ActiveSessionPair::handleMessageReceived(int connection, boost::shared_ptr<Swift::Message> msg) {
+void ActiveSessionPair::handleMessageReceived(int connection, std::shared_ptr<Swift::Message> msg) {
 	receivedMessages[connection].push_back((MessageStamp(msg)));
 	++noOfReceivedMessages[connection];
 	if (noOfReceivedMessages[connection] == warmUpMessages && noOfReceivedMessages[1 - connection] >= warmUpMessages) {
@@ -207,12 +207,12 @@ void ActiveSessionPair::checkIfDoneBenchmarking() {
 		noOfReceivedMessages[1] >= messages) {
 		benchmarkingDone = true;
 		onBenchmarkEnd();
-		
+
 		done = true;
 		client[0]->onDataRead.disconnect(boost::bind(&ActiveSessionPair::handleDataRead, this, _1));
 		client[1]->onDataRead.disconnect(boost::bind(&ActiveSessionPair::handleDataRead, this, _1));
 		end = boost::posix_time::microsec_clock::local_time();
-		
+
 		onDoneBenchmarking();
 	}
 }
