@@ -7,7 +7,7 @@
 #pragma once
 #define private public // FIXME
 #include <Swiften/EventLoop/BoostASIOEventLoop.h>
-#define private private
+#undef private
 #include <Swiften/Network/NetworkFactories.h>
 #include <Swiften/TLS/PlatformTLSFactories.h>
 
