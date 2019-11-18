@@ -14,7 +14,9 @@
 #include "IdleSession.h"
 
 LatencyWorkloadBenchmark::LatencyWorkloadBenchmark(std::vector<Swift::NetworkFactories*> networkFactories, AccountDataProvider* accountProvider, Options& opt) : networkFactories(networkFactories), accountProvider(accountProvider), opt(opt), sessionsReadyToBenchmark(0) {
-	std::cout << "Creating sessions...";
+	constexpr int dotFrequency = 500;
+	std::cout << "Creating sessions";
+	std::cout.flush();
 
 	// create active sessions
 	for (int i = 0; i < opt.noOfActiveSessions / 2; ++i) {
@@ -25,6 +27,10 @@ LatencyWorkloadBenchmark::LatencyWorkloadBenchmark(std::vector<Swift::NetworkFac
 		activePair->onBenchmarkEnd.connect(boost::bind(&LatencyWorkloadBenchmark::handleBenchmarkEnd, this));
 		activeSessionPairs.push_back(activePair);
 		sessionsToActivate.push_back(activePair);
+		if (i % dotFrequency == 0) {
+			std::cout << ".";
+			std::cout.flush();
+		}
 	}
 
 	// create idle sessions
@@ -34,17 +40,26 @@ LatencyWorkloadBenchmark::LatencyWorkloadBenchmark(std::vector<Swift::NetworkFac
 		idleSession->onDoneBenchmarking.connect(boost::bind(&LatencyWorkloadBenchmark::handleBenchmarkSessionDone, this, idleSession));
 		idleSessions.push_back(idleSession);
 		sessionsToActivate.push_back(idleSession);
+		if (i % dotFrequency == 0) {
+			std::cout << ".";
+			std::cout.flush();
+		}
 	}
 
-	std::cout << "done." << std::endl;
-	std::cout << "Preparing sessions...";
+	std::cout << " done." << std::endl;
+	std::cout << "Preparing sessions";
 	std::cout.flush();
 
 	nextActivateSession = sessionsToActivate.begin();
 	for (size_t n = 0; n < opt.parallelLogins && n < sessionsToActivate.size(); ++n) {
 		(*nextActivateSession)->start();
 		++nextActivateSession;
+		if (n % dotFrequency == 0) {
+			std::cout << ".";
+			std::cout.flush();
+		}
 	}
+	std::cout << " done." << std::endl;
 }
 
 LatencyWorkloadBenchmark::~LatencyWorkloadBenchmark() {

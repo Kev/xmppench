@@ -15,7 +15,7 @@
 // #include <Swiften/EventLoop/SimpleEventLoop.h>
 #define private public // FIXME
 #include <Swiften/EventLoop/BoostASIOEventLoop.h>
-#define private private
+#undef private
 #include <Swiften/JID/JID.h>
 #include <Swiften/Network/BoostNetworkFactories.h>
 
@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
 	std::vector<BoostASIOEventLoop*> eventLoops;
 	std::vector<NetworkFactories*> networkFactories;
 
-	for (int n = 0; n < jobs; ++n) {
+	for (size_t n = 0; n < jobs; ++n) {
 		BoostASIOEventLoop* eventLoop = new BoostASIOEventLoop(std::make_shared<boost::asio::io_service>());
 		NetworkFactories* factory;
 		//if (jobs > 1) {

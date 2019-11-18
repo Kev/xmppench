@@ -7,6 +7,7 @@
 #include "BenchmarkNetworkFactories.h"
 
 #include <Swiften/Crypto/PlatformCryptoProvider.h>
+#include <Swiften/IDN/IDNConverter.h>
 #include <Swiften/IDN/PlatformIDNConverter.h>
 #include <Swiften/Network/BoostConnectionFactory.h>
 #include <Swiften/Network/BoostConnectionServerFactory.h>
@@ -76,8 +77,8 @@ Swift::NetworkEnvironment* BenchmarkNetworkFactories::getNetworkEnvironment() co
 }
 
 Swift::IDNConverter* BenchmarkNetworkFactories::getIDNConverter() const {
-	static Swift::IDNConverter* idn = Swift::PlatformIDNConverter::create();
-	return idn;
+	static auto idn = Swift::PlatformIDNConverter::create();
+	return idn.get();
 }
 
 Swift::CryptoProvider* BenchmarkNetworkFactories::getCryptoProvider() const {
